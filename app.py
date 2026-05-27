@@ -16,7 +16,7 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-DB = "board.db"
+DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "board.db")
 
 # ── 分类配置 ──
 CATEGORIES = {
@@ -156,6 +156,11 @@ footer{{text-align:center;padding:30px 0;color:#d1d5db;font-size:12px}}
 
 
 # ── 路由 ──
+
+@app.route("/health")
+def health():
+    """健康检查"""
+    return "OK - 留言墙运行正常"
 
 @app.route("/")
 def index():
@@ -357,9 +362,17 @@ def reply(post_id):
     return redirect(url_for("detail", post_id=post_id))
 
 
-# ── 启动 ──
-init_db()
+# ── 每次请求前确保数据库已初始化 ──
+_db_initialized = False
 
+@app.before_request
+def ensure_db():
+    global _db_initialized
+    if not _db_initialized:
+        init_db()
+        _db_initialized = True
+
+# ── 启动 ──
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print()
