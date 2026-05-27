@@ -358,8 +358,9 @@ def reply(post_id):
 
 
 # ── 启动 ──
+init_db()
+
 if __name__ == "__main__":
-    init_db()
     port = int(os.environ.get("PORT", 5000))
     print()
     print("=" * 50)
